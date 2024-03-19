@@ -1,0 +1,17 @@
+root = "./" # Root of the folder to pack
+output = "/path/to/output" # Folder to save resulting zips to
+root_name = "Base" # Name of the root zip
+root_compression = "zstd" # Compression of the root zip
+# zip_limit = 53687091200 # (50GB)
+zip_limit = 104857600 # (50MB) Approximate size of resulting zips
+
+# Available compression types - store / deflate / zstd / bzip2
+
+[zip.Source] # zip.<Name of zip> (Example results in Source_1.zip, Source_2.zip)
+path = "src" # Relative path from the root to a folder
+compression = "zstd" # Compression of these specific zips
+skip = true # Skip packing this directory, but still exclude it from the root zip
+
+[zip.Test]
+path = "test"
+compression = "zstd"
