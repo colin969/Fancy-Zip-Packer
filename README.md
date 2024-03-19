@@ -1,4 +1,4 @@
-# Fancy Zip Packers
+# Fancy Zip Packer
 
 Creates a collection of zip files of an approximate size of a given folder, which can be extracted on top of each other in any order.
 
