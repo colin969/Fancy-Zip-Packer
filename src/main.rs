@@ -2,7 +2,7 @@ use std::{collections::{HashMap, HashSet}, fs::{self, File}, io, os::unix::fs::M
 
 use serde::Deserialize;
 use walkdir::{DirEntry, WalkDir};
-use zip::{write::FileOptions, ZipWriter};
+use zip::{write::FileOptions, CompressionMethod, ZipWriter};
 
 #[derive(Deserialize)]
 struct Config {
@@ -26,6 +26,7 @@ struct MultiZip {
     root: String,
     name: String,
     zip_limit: u64,
+    compression: CompressionMethod,
     current_path: PathBuf,
     current_size: u64,
     total_size: u64,
@@ -138,7 +139,7 @@ fn zip_directory(zip: &mut MultiZip, info: ZipConfig) ->  io::Result<()> {
 
 impl MultiZip {
     fn open(root: &str, name: &str, zip_limit: u64, compression: zip::CompressionMethod, output: &str) ->  io::Result<MultiZip> {
-        let new_path = Path::new(output).join(format!("{}_{}.zip", name, 1));
+        let new_path = Path::new(output).join(format!("{}_{}.{}", name, 1, get_file_extension(compression)));
         let file = File::create(&new_path)?;
         let writer = ZipWriter::new(file);
         Ok(MultiZip {
@@ -153,6 +154,7 @@ impl MultiZip {
             total_zip_size: 0,
             writer,
             zip_limit,
+            compression,
             options: FileOptions::default().compression_method(compression),
         })
     }
@@ -165,7 +167,7 @@ impl MultiZip {
         
         // Increment zip number and open new zip
         self.current_number += 1;
-        let new_path = Path::new(&self.output).join(format!("{}_{}.zip", self.name, self.current_number));
+        let new_path = Path::new(&self.output).join(format!("{}_{}.{}", self.name, self.current_number, get_file_extension(self.compression)));
         let file = File::create(new_path)?;
         self.writer = ZipWriter::new(file);
         self.current_size = 0;
@@ -206,6 +208,14 @@ fn string_to_compression_method(s: &str) -> zip::CompressionMethod {
         "zstd" => zip::CompressionMethod::ZSTD,
         "bzip2" => zip::CompressionMethod::BZIP2,
         _ => zip::CompressionMethod::STORE
+    }
+}
+
+fn get_file_extension(c: CompressionMethod) -> String {
+    match c {
+        CompressionMethod::Zstd => "zst".to_owned(),
+        CompressionMethod::Bzip2 => "bz2".to_owned(),
+        _ => "zip".to_owned()
     }
 }
 
