@@ -179,7 +179,7 @@ impl MultiZip {
         self.total_files += 1;
 
         // Write file to archive
-        self.writer.start_file(path.to_string_lossy(), self.options)?;
+        self.writer.start_file(path.strip_prefix("./").unwrap_or(path).to_string_lossy(), self.options)?;
         let mut file = File::open(path)?;
         io::copy(&mut file, &mut self.writer)?;
 
