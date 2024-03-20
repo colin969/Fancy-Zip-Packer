@@ -155,7 +155,7 @@ impl MultiZip {
             writer,
             zip_limit,
             compression,
-            options: FileOptions::default().compression_method(compression),
+            options: FileOptions::default().compression_method(compression).large_file(true),
         })
     }
 
